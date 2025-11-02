@@ -1,0 +1,20 @@
+{
+  "name": "@social-genie/shared-types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript type definitions for Social Genie",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
