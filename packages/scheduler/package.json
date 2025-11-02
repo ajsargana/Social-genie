@@ -1,0 +1,33 @@
+{
+  "name": "@social-genie/scheduler",
+  "version": "1.0.0",
+  "description": "Background job processing and scheduling for Social Genie",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/worker.js",
+    "start:dev": "ts-node src/worker.ts"
+  },
+  "dependencies": {
+    "@social-genie/shared-types": "workspace:*",
+    "@social-genie/database": "workspace:*",
+    "@social-genie/ai-content": "workspace:*",
+    "@social-genie/social-integrations": "workspace:*",
+    "bullmq": "^4.15.0",
+    "ioredis": "^5.3.2",
+    "cron": "^3.1.6",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/cron": "^2.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
