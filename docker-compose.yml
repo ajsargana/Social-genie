@@ -1,0 +1,181 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: social-genie-db
+    environment:
+      POSTGRES_DB: socialgenie_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./packages/database/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - social-genie-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache and Queue
+  redis:
+    image: redis:7-alpine
+    container_name: social-genie-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - social-genie-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Web Dashboard (Next.js)
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: social-genie-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=your-secret-key-change-in-production
+      - DATABASE_URL=postgresql://postgres:password@db:5432/socialgenie_dev
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - social-genie-network
+    command: npm run dev
+
+  # Backend API (Express.js)
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: social-genie-api
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://postgres:password@db:5432/socialgenie_dev
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-jwt-secret-change-in-production
+      - ENCRYPTION_KEY=your-encryption-key-32-chars
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+    networks:
+      - social-genie-network
+    command: npm run dev
+
+  # Background Worker (Scheduler)
+  worker:
+    build:
+      context: ./packages/scheduler
+      dockerfile: Dockerfile
+    container_name: social-genie-worker
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@db:5432/socialgenie_dev
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - AYRSHARE_API_KEY=${AYRSHARE_API_KEY}
+      - ENCRYPTION_KEY=your-encryption-key-32-chars
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./packages/scheduler:/app
+      - /app/node_modules
+    networks:
+      - social-genie-network
+    command: npm run start:dev
+
+  # Database Management Tool (pgAdmin)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: social-genie-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@socialgenie.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - social-genie-network
+
+  # Redis Management Tool (Redis Commander)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: social-genie-redis-commander
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - social-genie-network
+
+networks:
+  social-genie-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# Development overrides
+x-development: &development
+  environment:
+    - DEBUG=social-genie:*
+    - LOG_LEVEL=debug
+
+# Production overrides
+x-production: &production
+  environment:
+    - NODE_ENV=production
+    - LOG_LEVEL=info
+  deploy:
+    resources:
+      limits:
+        memory: 512M
+      reservations:
+        memory: 256M
