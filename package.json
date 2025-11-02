@@ -1,0 +1,47 @@
+{
+  "name": "social-genie",
+  "version": "1.0.0",
+  "description": "Autonomous social media content creation and posting platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\"",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:worker": "npm run dev --workspace=packages/scheduler",
+    "build": "npm run build --workspaces",
+    "start": "concurrently \"npm run start:web\" \"npm run start:api\" \"npm run start:worker\"",
+    "start:web": "npm run start --workspace=apps/web",
+    "start:api": "npm run start --workspace=apps/api",
+    "start:worker": "npm run start --workspace=packages/scheduler",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "clean": "npm run clean --workspaces && rm -rf node_modules",
+    "db:migrate": "npm run db:migrate --workspace=packages/database",
+    "db:seed": "npm run db:seed --workspace=packages/database"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.0",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "social-media",
+    "automation",
+    "ai",
+    "content-generation",
+    "scheduling"
+  ],
+  "author": "Social Genie Team",
+  "license": "MIT"
+}
