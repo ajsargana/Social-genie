@@ -1,0 +1,31 @@
+# Development overrides for docker-compose
+version: '3.8'
+
+services:
+  web:
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - DEBUG=true
+      - CHOKIDAR_USEPOLLING=true
+
+  api:
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+    environment:
+      - DEBUG=true
+
+  worker:
+    volumes:
+      - ./packages/scheduler:/app
+      - /app/node_modules
+    environment:
+      - DEBUG=true
+
+  # Add hot reloading for development
+  # Remove memory limits for development
+  deploy:
+    resources: null
