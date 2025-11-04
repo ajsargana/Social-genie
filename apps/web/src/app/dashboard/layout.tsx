@@ -81,20 +81,16 @@ export default function DashboardLayout({
                 <div className="text-2xl font-bold text-white">🧞‍♂️</div>
               </div>
               <nav className="mt-5 flex-1 space-y-1 px-2">
-                {navigation.map((item) => (
-                  <Link
+                {navigation.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                      activeTab === item.id
-                        ? 'bg-primary-900 text-white'
-                        : 'text-primary-300 hover:bg-primary-700 hover:text-white'
-                    }`}
-                    onClick={() => {
-                      setActiveTab(item.id)
-                      setIsMenuOpen(false)
-                    }}
+                    className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-primary-300 hover:bg-primary-700 hover:text-white transition-colors"
+                    onClick={() => toggleSidebar()}
                   >
+                    <Icon className="h-5 w-5 mr-3" />
                     {item.name}
                   </Link>
                 ))}
