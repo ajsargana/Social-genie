@@ -1,73 +1,48 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { toast } from 'react-hot-toast'
+import { useAuthStore, useUIStore } from '@/lib/store'
+import { LoadingSpinner, PageLoading } from '@/components/ui/LoadingSpinner'
+import { Button } from '@/components/ui/Button'
+import {
+  Bars3Icon,
+  XMarkIcon,
+  HomeIcon,
+  DocumentTextIcon,
+  CalendarIcon,
+  ChartBarIcon,
+  UserGroupIcon,
+  Cog6ToothIcon,
+ ArrowRightOnRectangleIcon
+} from '@heroicons/react/24/outline'
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('overview')
+  const { user, isAuthenticated, logout, checkAuth } = useAuthStore()
+  const { sidebarOpen, toggleSidebar, theme } = useUIStore()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        router.push('/auth/login')
-        return
-      }
-
-      try {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setUser(data.user)
-        } else {
-          localStorage.removeItem('token')
-          router.push('/auth/login')
-        }
-      } catch (error) {
-        localStorage.removeItem('token')
-        router.push('/auth/login')
-      }
-    }
-
     checkAuth()
-  }, [router])
+  }, [checkAuth])
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
-      localStorage.removeItem('token')
-      router.push('/')
-    } catch (error) {
-      toast.error('Logout failed')
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsLoading(false)
     }
-  }
+  }, [isAuthenticated])
 
   const navigation = [
-    { name: 'Overview', href: '/dashboard', id: 'overview' },
-    { name: 'Content', href: '/dashboard/content', id: 'content' },
-    { name: 'Schedule', href: '/dashboard/schedule', id: 'schedule' },
-    { name: 'Analytics', href: '/dashboard/analytics', id: 'analytics' },
-    { name: 'Accounts', href: '/dashboard/accounts', id: 'accounts' },
-    { name: 'Settings', href: '/dashboard/settings', id: 'settings' },
+    { name: 'Overview', href: '/dashboard', id: 'overview', icon: HomeIcon },
+    { name: 'Content', href: '/dashboard/content', id: 'content', icon: DocumentTextIcon },
+    { name: 'Schedule', href: '/dashboard/schedule', id: 'schedule', icon: CalendarIcon },
+    { name: 'Analytics', href: '/dashboard/analytics', id: 'analytics', icon: ChartBarIcon },
+    { name: 'Accounts', href: '/dashboard/accounts', id: 'accounts', icon: UserGroupIcon },
+    { name: 'Settings', href: '/dashboard/settings', id: 'settings', icon: Cog6ToothIcon },
   ]
 
   if (!user) {
