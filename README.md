@@ -1,75 +1,116 @@
-# Social Genie 🧞‍♂️
+# 🧞‍♂️ Social Genie
 
-An autonomous social media content creation and posting platform that leverages AI to automatically generate, schedule, and publish engaging content across all major social platforms.
+AI-Powered Social Media Automation Platform
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
+![TypeScript](https://img.shields.io/badge/typescript-%5E5.3.0-blue.svg)
+
+Social Genie is an autonomous social media content creation and posting platform that uses AI to automatically generate engaging content, schedule optimal posting times, and manage all your social media accounts from one dashboard.
 
 ## ✨ Features
 
-### 🤖 AI-Powered Content Generation
-- **Autonomous Content Engine**: Automatically selects topics and generates engaging content
-- **Multi-Provider AI Support**: OpenAI GPT-5, Anthropic Claude, Google Gemini
-- **Content Categories**: Daily movies, product showcases, quotes, educational content, and more
-- **Intelligent Media**: Generates or retrieves relevant images when media is missing
-- **Quality Assurance**: Built-in content validation and quality scoring
-
-### 🌐 Multi-Platform Integration
-- **Supported Platforms**: Instagram, Facebook, Twitter/X, LinkedIn, TikTok, YouTube, Pinterest
-- **Hybrid Strategy**: Start with unified API (Ayrshare), migrate to direct integrations
-- **Smart Content Adaptation**: Automatically adapts content for each platform's requirements
-- **Cross-Platform Coordination**: Optimal timing and content variation across platforms
-
-### ⏰ Intelligent Scheduling
-- **Autonomous Posting**: Fully automated content scheduling and posting
-- **Optimal Timing**: AI-driven posting time optimization based on audience behavior
-- **Fallback Content**: Graceful handling when planned media is unavailable
-- **Retry Logic**: Smart retry strategies for failed posts with exponential backoff
-
-### 📊 Analytics & Optimization
-- **Performance Tracking**: Comprehensive analytics across all platforms
-- **Content Optimization**: AI learns from performance to improve future content
-- **Engagement Monitoring**: Automatic comment monitoring and AI-powered replies
-- **Trend Integration**: Real-time hashtag and topic optimization
-
-### 🎛️ Control & Customization
-- **Dashboard**: Clean, modern web interface for management and oversight
-- **Automation Modes**: Fully automated or semi-automated (approve-before-post)
-- **Content Preferences**: Customizable tone, length, media preferences
-- **Brand Voice**: Consistent brand personality across all generated content
-
-## 🏗️ Architecture
-
-### Monorepo Structure
-```
-Social-genie/
-├── apps/
-│   ├── web/                 # Next.js dashboard application
-│   └── api/                 # Express.js backend API
-├── packages/
-│   ├── database/            # Shared database schemas and migrations
-│   ├── ai-content/          # AI content generation service
-│   ├── social-integrations/ # Platform-specific integrations
-│   ├── scheduler/           # Background job processors
-│   └── shared-types/        # TypeScript type definitions
-├── docker-compose.yml       # Local development environment
-├── .env.example            # Environment configuration template
-└── README.md               # This file
-```
-
-### Technology Stack
-- **Frontend**: Next.js 14+ with Tailwind CSS
-- **Backend**: Node.js with Express.js
-- **Database**: PostgreSQL for relational data
-- **Cache/Queue**: Redis for session storage and job queues
-- **Job Processing**: BullMQ for reliable background tasks
-- **AI Integration**: OpenAI, Anthropic Claude, Google Gemini
-- **Authentication**: NextAuth.js with OAuth2
-- **Deployment**: Docker containers
+- 🤖 **AI Content Generation**: Automatically create engaging posts with OpenAI and Claude
+- 🌐 **Multi-Platform Support**: Instagram, Facebook, Twitter, LinkedIn, TikTok, YouTube & Pinterest
+- ⏰ **Smart Scheduling**: Post at optimal times for maximum engagement
+- 📊 **Analytics & Insights**: Track performance and optimize your strategy
+- 💬 **Auto-Engagement**: AI-powered replies to comments and mentions
+- 🎛️ **Full Control**: Review and approve content before posting
+- 🔄 **Background Processing**: Reliable job queue with retry logic
+- 🎨 **Modern UI**: Beautiful, responsive interface with dark mode support
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm 9+
-- Docker and Docker Compose
-- PostgreSQL and Redis (or use Docker containers)
+
+- **Node.js** >= 18.0.0
+- **PostgreSQL** >= 14.0
+- **Redis** >= 6.0
+
+### One-Command Setup
+
+```bash
+# Clone and setup everything automatically
+git clone <your-repo-url>
+cd Social-genie
+npm run setup
+```
+
+### Manual Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Setup environment
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.local.example apps/web/.env.local
+
+# Start PostgreSQL and Redis
+# (See LOCAL_SETUP.md for detailed instructions)
+
+# Setup database
+npm run db:migrate
+
+# Start all services
+npm run dev
+```
+
+### Access the Application
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:3001
+- **API Health Check**: http://localhost:3001/api/health
+
+## 🏗️ Architecture
+
+```
+Social-genie/
+├── apps/
+│   ├── api/           # Backend API (Express.js)
+│   └── web/           # Frontend (Next.js)
+├── packages/
+│   ├── database/      # Database migrations and seeds
+│   ├── ai-content/    # AI content generation service
+│   ├── social-integrations/  # Platform API integrations
+│   ├── scheduler/     # Background job processing
+│   └── shared-types/  # Shared TypeScript types
+└── scripts/           # Development and deployment scripts
+```
+
+## 🛠️ Development
+
+### Available Scripts
+
+```bash
+# Setup and start
+npm run setup              # Automated setup script
+npm run dev                 # Start all services (web + api + worker)
+
+# Individual services
+npm run dev:web            # Start frontend only
+npm run dev:api            # Start backend API only
+npm run dev:worker         # Start background worker only
+
+# Database
+npm run db:migrate         # Run database migrations
+npm run db:seed            # Seed database with sample data
+npm run db:reset           # Reset database
+
+# Build and test
+npm run build              # Build all packages
+npm run test               # Run all tests
+npm run lint               # Run linting
+npm run typecheck          # TypeScript type checking
+```
+
+### Development Scripts
+
+```bash
+# Smart start/stop scripts with logs
+./scripts/start-dev.sh     # Start all services with detailed logging
+./scripts/stop-dev.sh      # Stop all development services
+```
 
 ### 1. Clone and Setup
 ```bash
