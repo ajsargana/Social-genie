@@ -137,3 +137,22 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Social Genie specific
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Redis dump
+dump.rdb
+
+# Local configuration
+config/local.json
+.local/
+
+# Test results
+test-results/
