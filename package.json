@@ -8,21 +8,27 @@
     "packages/*"
   ],
   "scripts": {
+    "setup": "chmod +x scripts/setup.sh && ./scripts/setup.sh",
     "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:worker\"",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:api": "npm run dev --workspace=apps/api",
     "dev:worker": "npm run dev --workspace=packages/scheduler",
+    "dev:services": "concurrently \"npm run dev:api\" \"npm run dev:worker\"",
     "build": "npm run build --workspaces",
     "start": "concurrently \"npm run start:web\" \"npm run start:api\" \"npm run start:worker\"",
     "start:web": "npm run start --workspace=apps/web",
     "start:api": "npm run start --workspace=apps/api",
     "start:worker": "npm run start --workspace=packages/scheduler",
+    "start:services": "concurrently \"npm run start:api\" \"npm run start:worker\"",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "clean": "npm run clean --workspaces && rm -rf node_modules",
     "db:migrate": "npm run db:migrate --workspace=packages/database",
-    "db:seed": "npm run db:seed --workspace=packages/database"
+    "db:migrate:rollback": "npm run db:migrate:rollback --workspace=packages/database",
+    "db:seed": "npm run db:seed --workspace=packages/database",
+    "db:reset": "npm run db:reset --workspace=packages/database",
+    "db:setup": "npm run db:migrate && npm run db:seed"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
