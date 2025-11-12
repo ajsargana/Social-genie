@@ -1,0 +1,116 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TokenManager = exports.SocialPlatformIntegration = void 0;
+class SocialPlatformIntegration {
+    platform;
+    tokenManager;
+    constructor(platform) {
+        this.platform = platform;
+        this.tokenManager = new TokenManager();
+    }
+    handleError(error, context) {
+        const statusCode = error.response?.status;
+        const errorCode = error.response?.data?.error?.code || error.code;
+        const errorMessage = error.response?.data?.error?.message || error.message;
+        return {
+            code: errorCode || 'UNKNOWN_ERROR',
+            message: errorMessage || 'An unknown error occurred',
+            platform: this.platform,
+            status_code: statusCode,
+            retry_possible: this.isRetryableError(statusCode, errorCode),
+            suggested_action: this.getSuggestedAction(statusCode, errorCode)
+        };
+    }
+    isRetryableError(statusCode, errorCode) {
+        if (!statusCode)
+            return true;
+        // Retryable status codes
+        const retryableStatusCodes = [408, 429, 500, 502, 503, 504];
+        if (retryableStatusCodes.includes(statusCode))
+            return true;
+        // Retryable error codes
+        const retryableErrorCodes = [
+            'rate_limit_exceeded',
+            'temporarily_unavailable',
+            'internal_error'
+        ];
+        if (errorCode && retryableErrorCodes.includes(errorCode))
+            return true;
+        return false;
+    }
+    getSuggestedAction(statusCode, errorCode) {
+        if (statusCode === 401 || errorCode === 'unauthorized') {
+            return 'manual_review'; // Token refresh needed
+        }
+        if (statusCode === 403 || errorCode === 'forbidden') {
+            return 'manual_review'; // Permission issue
+        }
+        if (statusCode === 429 || errorCode === 'rate_limit_exceeded') {
+            return 'retry'; // Rate limiting
+        }
+        if (statusCode && statusCode >= 500) {
+            return 'retry'; // Server errors
+        }
+        if (errorCode === 'content_violation' || errorCode === 'policy_violation') {
+            return 'manual_review'; // Content policy issues
+        }
+        return 'skip'; // Default action
+    }
+}
+exports.SocialPlatformIntegration = SocialPlatformIntegration;
+class TokenManager {
+    async encryptToken(token) {
+        const algorithm = 'aes-256-gcm';
+        const key = Buffer.from(process.env.ENCRYPTION_KEY || 'default-key-32-characters-long!!', 'utf8');
+        const iv = crypto.randomBytes(16);
+        const cipher = crypto.createCipher(algorithm, key, iv);
+        let encrypted = cipher.update(token, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        const authTag = cipher.getAuthTag();
+        return iv.toString('hex') + ':' + authTag.toString('hex') + ':' + encrypted;
+    }
+    async decryptToken(encryptedToken) {
+        const algorithm = 'aes-256-gcm';
+        const key = Buffer.from(process.env.ENCRYPTION_KEY || 'default-key-32-characters-long!!', 'utf8');
+        const parts = encryptedToken.split(':');
+        if (parts.length !== 3) {
+            throw new Error('Invalid encrypted token format');
+        }
+        const iv = Buffer.from(parts[0], 'hex');
+        const authTag = Buffer.from(parts[1], 'hex');
+        const encrypted = parts[2];
+        const decipher = crypto.createDecipher(algorithm, key, iv);
+        decipher.setAuthTag(authTag);
+        let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        return decrypted;
+    }
+    isTokenExpired(token) {
+        if (!token.expires_at)
+            return false;
+        const expiryBuffer = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
+        const now = Date.now();
+        return token.expires_at.getTime() <= (now + expiryBuffer);
+    }
+    async refreshIfNeeded(socialAccount) {
+        try {
+            const currentToken = await this.decryptToken(socialAccount.access_token_encrypted);
+            const token = JSON.parse(currentToken);
+            if (!this.isTokenExpired(token)) {
+                return token;
+            }
+            // Token needs refresh
+            if (!socialAccount.refresh_token_encrypted) {
+                throw new Error('No refresh token available');
+            }
+            const refreshToken = await this.decryptToken(socialAccount.refresh_token_encrypted);
+            // This would need to be implemented by each platform
+            throw new Error('Token refresh not implemented for this platform');
+        }
+        catch (error) {
+            throw new Error(`Token refresh failed: ${error.message}`);
+        }
+    }
+}
+exports.TokenManager = TokenManager;
+//# sourceMappingURL=base.js.map

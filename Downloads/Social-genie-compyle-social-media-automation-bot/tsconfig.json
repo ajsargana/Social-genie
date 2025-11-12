@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "esModuleInterop": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "incremental": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "baseUrl": ".",
+    "paths": {
+      "@social-genie/shared-types": ["./packages/shared-types/src"],
+      "@social-genie/database": ["./packages/database/src"],
+      "@social-genie/ai-content": ["./packages/ai-content/src"],
+      "@social-genie/social-integrations": ["./packages/social-integrations/src"],
+      "@social-genie/scheduler": ["./packages/scheduler/src"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*",
+    "apps/*/src/**/*",
+    "apps/*/api/**/*",
+    "apps/*/app/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    "coverage",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ],
+  "references": [
+    { "path": "./packages/shared-types" },
+    { "path": "./packages/database" },
+    { "path": "./packages/ai-content" },
+    { "path": "./packages/social-integrations" },
+    { "path": "./packages/scheduler" },
+    { "path": "./apps/web" },
+    { "path": "./apps/api" }
+  ]
+}
